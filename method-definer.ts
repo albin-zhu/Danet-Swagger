@@ -123,10 +123,9 @@ export class MethodDefiner {
 			actualPath.parameters!.push({
 				name: `${item.name}`,
 				in: 'path',
-				description: '',
 				required: true,
 				schema: {
-					type: 'string',
+					type: 'string'
 				},
 			});
 		}
@@ -150,6 +149,11 @@ export class MethodDefiner {
 					queryType.prototype,
 					propertyName,
 				) as Constructor<any>;
+				const desc = MetadataHelper.getMetadata(
+					API_PROPERTY,
+					queryType.prototype,
+					propertyName,
+				) as Schema;
 				const isRequired = !MetadataHelper.getMetadata(
 					OPTIONAL_KEY,
 					queryType.prototype,
@@ -161,7 +165,7 @@ export class MethodDefiner {
 					const paramToAdd: Partial<Parameter> = {
 						name: `${propertyName}`,
 						in: 'query',
-						description: '',
+						description: desc?.description || '',
 						required: isRequired,
 					};
 					if (isPrimitive(propertyTypeName.toLowerCase())) {
@@ -208,15 +212,22 @@ export class MethodDefiner {
 	}
 
 	private addActualMethodPath(paths: { [p: string]: Path }) {
+		const description = MetadataHelper.getMetadata(
+			API_PROPERTY,
+			this.Controller.prototype,
+			this.methodName,
+		) as Schema;
+		
 		return {
 			...paths,
 			[this.pathUrl]: {
 				...paths[this.pathUrl],
 				[this.httpMethod]: {
+					description: description?.description || '',
 					operationId: this.methodName,
 					responses: {
 						200: {
-							description: '',
+							description:  '',
 						},
 					},
 				},
@@ -232,6 +243,7 @@ export class MethodDefiner {
 		) as {
 			returnedType: Constructor;
 			isArray: boolean | undefined;
+			description: string | undefined;
 		};
 		if (returnedValue) {
 			if (isPrimitive(returnedValue.returnedType.name.toLowerCase())) {
@@ -241,11 +253,12 @@ export class MethodDefiner {
 						items: {
 							type: returnedValue.returnedType.name.toLowerCase() as DataType,
 						},
-					}).setDescription('').get();
+						description: returnedValue.description || '',
+					}).get();
 				} else {
 					actualPath.responses[200] = new ResponseBuilder().jsonContent({
 						type: returnedValue.returnedType.name.toLowerCase() as DataType,
-					}).setDescription('').get();
+					}).setDescription(returnedValue.description||'').get();
 				}
 			} else {
 				if (returnedValue.isArray) {
@@ -254,11 +267,11 @@ export class MethodDefiner {
 						items: {
 							'$ref': `#/components/schemas/${returnedValue.returnedType.name}`,
 						},
-					}).setDescription('').get();
+					}).setDescription(returnedValue.description||'').get();
 				} else {
 					actualPath.responses[200] = new ResponseBuilder().jsonContent({
 						'$ref': `#/components/schemas/${returnedValue.returnedType.name}`,
-					}).setDescription('').get();
+					}).setDescription(returnedValue.description||'').get();
 				}
 				this.generateTypeSchema(returnedValue.returnedType);
 			}
@@ -275,7 +288,7 @@ export class MethodDefiner {
 		if (bodyType) {
 			actualPath.requestBody = new RequestBodyBuilder().jsonContent({
 				'$ref': `#/components/schemas/${bodyType.name}`,
-			}).setDescription('').get();
+			}).get();
 			this.generateTypeSchema(bodyType);
 		}
 		return null;

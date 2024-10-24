@@ -23,23 +23,23 @@ import { Module } from '@danet/core';
 import { DanetApplication } from '@danet/core';
 
 class Cat {
-	@ApiProperty()
+	@ApiProperty({description: 'The name of the cat'})
 	name!: string;
 
-	@ApiProperty()
+	@ApiProperty({description: 'The breed of the cat'})
 	breed!: string;
 
-	@ApiProperty()
+	@ApiProperty({description: 'The age of the cat'})
 	dob!: Date;
 
 	@Optional()
-	@ApiProperty()
+	@ApiProperty({description: 'The weight of the cat'})
 	isHungry?: boolean;
 
-	@ApiProperty()
+	@ApiProperty({description: 'The color of the cat'})
 	color?: any;
 
-	@ApiProperty()
+	@ApiProperty({description: 'The hobbies of the cat'})
 	hobbies?: any[];
 
 	constructor() {
@@ -47,15 +47,15 @@ class Cat {
 }
 
 class CatSearch {
-	@ApiProperty()
+	@ApiProperty({description: 'The name of the cat'})
 	name: string;
 
 	@Optional()
-	@ApiProperty()
+	@ApiProperty({description: 'The breed of the cat'})
 	breed?: string;
 
 	@Optional()
-	@ApiProperty()
+	@ApiProperty({description: 'The age of the cat'})
 	age?: number;
 
 	nonDecoratedProperty!: string;
@@ -66,18 +66,16 @@ class CatSearch {
 }
 
 class Todo {
-	@ApiProperty({
-		description: 'my description'
-	})
+	@ApiProperty({description: 'The title of the todo'})
 	title!: string;
 
-	@ApiProperty()
+	@ApiProperty({description: 'The description of the todo'})
 	description!: string;
 
-	@ApiProperty()
+	@ApiProperty({description: 'The version of the todo'})
 	version!: number;
 
-	@ApiProperty()
+	@ApiProperty({description: 'The cat of the todo'})
 	cat!: Cat;
 
 	constructor() {
@@ -85,14 +83,16 @@ class Todo {
 }
 
 export class NameSearch {
-	@ApiProperty()
+	@ApiProperty({description: '请传入你想打招呼的人'})
 	name!: string;
 }
 
 @Controller('hello')
 class HelloController {
+	@ApiProperty({description: '对某个人打招呼'})
 	@Get()
 	@QueryType(NameSearch)
+	@ReturnedType(String, false, '我们会对这个人说hello')
 	hello(@Query() search: NameSearch) {
 		return `Hello ${search.name}`;
 	}

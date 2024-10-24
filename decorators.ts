@@ -76,7 +76,7 @@ export const RETURNED_TYPE_KEY = 'returntype';
  * @param returnedType - The type of the value that the method or property returns.
  * @param isArray - Optional boolean indicating if the returned type is an array.
  */
-export function ReturnedType(returnedType: unknown, isArray?: boolean): DecoratorFunction {
+export function ReturnedType(returnedType: unknown, isArray?: boolean, description?: string): DecoratorFunction {
 	return (
 	target: Object,
 	propertyKey?: string | symbol,
@@ -87,6 +87,7 @@ export function ReturnedType(returnedType: unknown, isArray?: boolean): Decorato
 		{
 			returnedType,
 			isArray,
+			description,
 		},
 		target,
 		propertyKey,
